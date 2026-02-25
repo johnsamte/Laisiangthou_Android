@@ -1,0 +1,7 @@
+<shape xmlns:android="http://schemas.android.com/apk/res/android">
+    <solid android:color="@color/chapter_bg_color"/>
+    <stroke android:width="2dp"
+        android:color="@color/chapter_border_color"/>
+    <corners android:radius="10dp"/>
+
+</shape>

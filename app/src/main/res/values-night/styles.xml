@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="ExpandedAppBar" parent="TextAppearance.Material3.HeadlineMedium">
+        <item name="android:textColor">@color/bw</item>
+    </style>
+
+    <style name="CollapsedAppBar" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textColor">@color/textColor</item>
+    </style>
+</resources>

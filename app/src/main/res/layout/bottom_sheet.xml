@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="utf-8"?>
+<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:scrollbars="none"
+    android:padding="12dp"
+    android:background="@color/bw">
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical">
+
+        <!-- Add to Notes -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginEnd="16dp">
+
+            <ImageView
+                android:id="@+id/icon_add_to_notes"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:padding="8dp"
+                android:src="@drawable/icon_notes"
+                android:background="@drawable/ripple_effect"
+                android:contentDescription="@string/notes" />
+
+            <TextView
+                android:id="@+id/text_add_to_notes"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/notes"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:paddingTop="0dp"/>
+        </LinearLayout>
+
+        <!-- Bookmark -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginEnd="16dp">
+
+            <ImageView
+                android:id="@+id/icon_bookmark"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:padding="8dp"
+                android:src="@drawable/icon_bookmark"
+                android:background="@drawable/ripple_effect"
+                android:contentDescription="@string/bookmark" />
+
+            <TextView
+                android:id="@+id/text_bookmark"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bookmark"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:paddingTop="0dp"/>
+        </LinearLayout>
+
+        <!-- Share -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginEnd="16dp">
+
+            <ImageView
+                android:id="@+id/icon_share"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:padding="8dp"
+                android:src="@drawable/icon_ios_share"
+                android:background="@drawable/ripple_effect"
+                android:contentDescription="@string/share" />
+
+            <TextView
+                android:id="@+id/text_share"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/share"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:paddingTop="0dp"/>
+        </LinearLayout>
+
+        <!-- Copy -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginEnd="16dp">
+
+            <ImageView
+                android:id="@+id/icon_copy"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:padding="8dp"
+                android:src="@drawable/icon_copy"
+                android:background="@drawable/ripple_effect"
+                android:contentDescription="@string/copy" />
+
+            <TextView
+                android:id="@+id/text_copy"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/copy"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:paddingTop="0dp"/>
+        </LinearLayout>
+
+        <!-- Image Share -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginEnd="16dp">
+
+            <ImageView
+                android:id="@+id/icon_image_share"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:padding="8dp"
+                android:src="@drawable/icon_image_export"
+                android:background="@drawable/ripple_effect"
+                android:contentDescription="@string/image_share" />
+
+            <TextView
+                android:id="@+id/image_share"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/image_share"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:paddingTop="0dp"/>
+        </LinearLayout>
+
+        <!-- Compare -->
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:layout_marginEnd="8dp">
+
+            <ImageView
+                android:id="@+id/icon_compare"
+                android:layout_width="44dp"
+                android:layout_height="44dp"
+                android:padding="8dp"
+                android:src="@drawable/icon_compare"
+                android:background="@drawable/ripple_effect"
+                android:contentDescription="@string/compare_text" />
+
+            <TextView
+                android:id="@+id/compare"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/compare_text"
+                android:gravity="center"
+                android:textSize="12sp"
+                android:paddingTop="0dp"/>
+        </LinearLayout>
+
+    </LinearLayout>
+</HorizontalScrollView>

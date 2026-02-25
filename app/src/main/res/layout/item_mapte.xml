@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:gravity="center"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <ImageView
+        android:id="@+id/maptePreview"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
+        android:contentDescription="@string/maptepreview"
+        android:padding="6dp"
+        android:background="@drawable/mapte_border"
+        android:scaleType="centerInside"/>
+
+    <TextView
+        android:id="@+id/mapteName"
+        android:layout_width="180dp"
+        android:layout_height="wrap_content"
+        android:text="@string/abraham_khualzinna_gamte"
+        android:textAlignment="center"
+        android:padding="12dp"
+        android:textSize="16sp"/>
+</LinearLayout>
+

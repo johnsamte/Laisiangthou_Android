@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    android:layout_width="50dp"
+    android:layout_height="50dp"
+    android:layout_margin="6dp"
+
+    android:background="@drawable/chapter_box_bg"
+    android:backgroundTint="@color/chapter_border_color"
+    android:gravity="center"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <TextView
+        android:id="@+id/chapterNumber"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="18sp"
+        android:textStyle="bold"
+        android:gravity="center"/>
+</LinearLayout>

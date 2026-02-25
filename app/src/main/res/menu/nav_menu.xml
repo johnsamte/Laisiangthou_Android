@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+    <item
+        android:id="@+id/search_view"
+        android:icon="@drawable/baseline_search_24"
+        android:title="@string/zonbaihlamna" />
+
+
+    <item
+        android:title="@string/laisiangthou" >
+        <menu>
+            <item
+                android:id="@+id/bsi"
+                android:title="@string/laisiangthou_bsi"
+                android:icon="@drawable/lst2" />
+
+            <item
+                android:id="@+id/bi"
+                android:title="@string/laisiangthou_bi"
+                android:icon="@drawable/lst2" />
+        </menu>
+    </item>
+
+    <item
+        android:title="@string/chiamtehnate">
+        <menu>
+            <item
+                android:id="@+id/bookmarkte"
+                android:title="@string/bookmark"
+                android:icon="@drawable/icon_bookmark" />
+
+            <item
+                android:id="@+id/notete"
+                android:title="@string/notes"
+                android:icon="@drawable/icon_notes" />
+        </menu>
+    </item>
+    <item android:title="@string/amel_apuam">
+        <menu>
+
+            <item
+                android:id="@+id/theme"
+                android:title="@string/theme"
+                android:icon="@drawable/icon_theme" />
+
+    <item
+        android:id="@+id/about"
+        android:title="@string/about_laisiangthou"
+        android:icon="@drawable/baseline_info_24" />
+
+            <item
+                android:id="@+id/feedback"
+                android:title="Feedback Piakna"
+                android:icon="@drawable/icon_feedback" />
+
+    <item
+        android:id="@+id/updateCheck"
+        android:title="@string/check_for_updates"
+        android:icon="@drawable/icon_dwnloads" />
+        </menu>
+    </item>
+
+</menu>

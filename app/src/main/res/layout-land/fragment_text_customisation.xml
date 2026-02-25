@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="8dp"
+    android:scrollbars="none"
+    android:background="?attr/colorSurface">
+
+<RelativeLayout
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="8dp"
+    android:orientation="vertical" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:orientation="horizontal"
+        android:padding="8dp"
+        android:id="@+id/iconsBoldItallic">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/boldFace_share"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"
+            android:src="@drawable/bold_face"
+            android:layout_marginBottom="4dp"/>
+
+        <ImageView
+            android:id="@+id/italicFace_share"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/italics"
+            android:layout_marginBottom="4dp"
+            android:layout_marginStart="8dp"
+            android:layout_marginEnd="8dp"/>
+    </LinearLayout>
+
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/icon_shadowOpacitySeekBar"
+        android:src="@drawable/baseline_opacity_24"
+        android:foregroundGravity="center"
+        android:layout_below="@+id/iconsBoldItallic"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:layout_marginStart="4dp"/>
+
+
+    <SeekBar
+        android:id="@+id/shadowOpacitySeekBar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foregroundGravity="center"
+        android:thumbTint="@color/green"
+        android:progressTint="@color/red"
+        android:progressBackgroundTint="@color/off_white"
+        android:layout_toEndOf="@+id/icon_shadowOpacitySeekBar"
+        android:paddingTop="16dp"
+        android:paddingBottom="15dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_below="@+id/iconsBoldItallic"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/icon_shadowOpacitySeekBar1"
+        android:src="@drawable/line_spacing_share"
+        android:foregroundGravity="center"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:layout_marginStart="4dp"
+        android:layout_below="@+id/icon_shadowOpacitySeekBar"/>
+
+    <SeekBar
+        android:id="@+id/share_lineSpace"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/shadowOpacitySeekBar"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_toEndOf="@+id/icon_shadowOpacitySeekBar"
+        android:foregroundGravity="center"
+        android:paddingTop="16dp"
+        android:paddingBottom="14dp"
+        android:progressTint="@color/red"
+        android:thumbTint="@color/green"
+        android:progressBackgroundTint="@color/off_white"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/icon_shadowOpacitySeekBar6"
+        android:src="@drawable/expand"
+        android:foregroundGravity="center"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:layout_marginStart="4dp"
+        android:layout_below="@+id/icon_shadowOpacitySeekBar1"/>
+
+    <SeekBar
+        android:id="@+id/share_lineExpand"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/share_lineSpace"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_toEndOf="@+id/icon_shadowOpacitySeekBar6"
+        android:foregroundGravity="center"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:progressTint="@color/red"
+        android:thumbTint="@color/green"
+        android:progressBackgroundTint="@color/off_white"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/icon_shadowOpacitySeekBar2"
+        android:src="@drawable/text_increace"
+        android:layout_below="@+id/icon_shadowOpacitySeekBar6"
+        android:foregroundGravity="center"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="2dp"/>
+
+
+    <SeekBar
+        android:id="@+id/shareIncreaseDecreaseText"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/share_lineExpand"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_toEndOf="@+id/icon_shadowOpacitySeekBar"
+        android:foregroundGravity="center"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:progressBackgroundTint="@color/off_white"
+        android:progressTint="@color/red"
+        android:thumbTint="@color/green" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/icon_imageBlur"
+        android:src="@drawable/bg_blur"
+        android:layout_below="@+id/icon_shadowOpacitySeekBar2"
+        android:foregroundGravity="center"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="2dp"/>
+
+
+    <SeekBar
+        android:id="@+id/imageBlurSeekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/shareIncreaseDecreaseText"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_toEndOf="@+id/icon_shadowOpacitySeekBar"
+        android:foregroundGravity="center"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:progressBackgroundTint="@color/off_white"
+        android:progressTint="@color/red"
+        android:thumbTint="@color/green" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/icon_imageBrightness"
+        android:src="@drawable/brightness"
+        android:layout_below="@+id/icon_imageBlur"
+        android:foregroundGravity="center"
+        android:paddingTop="12dp"
+        android:paddingBottom="12dp"
+        android:layout_marginStart="4dp"
+        android:layout_marginTop="2dp"/>
+
+
+    <SeekBar
+        android:id="@+id/imageBrightnessSeekbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/imageBlurSeekbar"
+        android:layout_marginStart="8dp"
+        android:layout_marginEnd="4dp"
+        android:layout_toEndOf="@+id/icon_shadowOpacitySeekBar"
+        android:foregroundGravity="center"
+        android:paddingTop="16dp"
+        android:paddingBottom="16dp"
+        android:progressBackgroundTint="@color/off_white"
+        android:progressTint="@color/red"
+        android:thumbTint="@color/green" />
+
+</RelativeLayout>
+</ScrollView>

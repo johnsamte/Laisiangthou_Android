@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="bw">#FF000000</color>
+    <color name="grey">#464646</color>
+    <color name="my_primary">#FFFFFFFF</color>
+    <color name="accent">#00B8D4</color>
+    <color name="textColor">#FFF9F9</color>
+
+    <color name="chapter_bg_color">#52FFFFFF</color>
+    <color name="chapter_border_color">#72AAAAAA</color>
+    <color name="transparent_dektak">#B5000000</color>
+
+    <color name="red">#C40505</color>
+    <color name="toolbarcolor">#D5000000</color>
+    <color name="off_white">#C6C3C3</color>
+    <color name="green">#33AC04</color>
+    <color name="selected_color">#258303</color>
+    <color name="mat600">#039BE5</color>
+    <color name="toolbar">#BE000000</color>
+    <color name="my_colorSurface">#414141</color>
+
+</resources>

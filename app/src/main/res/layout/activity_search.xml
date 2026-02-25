@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.coordinatorlayout.widget.CoordinatorLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/bw"
+    android:fitsSystemWindows="true">
+
+    <com.google.android.material.appbar.AppBarLayout
+        android:id="@+id/appBarLayout"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/bw"
+        android:fitsSystemWindows="true">
+
+        <com.google.android.material.appbar.CollapsingToolbarLayout
+            android:id="@+id/collapsingToolbar"
+            android:layout_width="match_parent"
+            android:layout_height="140dp"
+            android:fitsSystemWindows="true"
+            app:layout_scrollFlags="scroll|exitUntilCollapsed"
+            android:background="@color/bw"
+            app:title="Thumal zon-awlna mun"
+            app:collapsedTitleTextAppearance="@style/CollapsedAppBar"
+            app:expandedTitleTextAppearance="@style/ExpandedAppBar">
+
+        <androidx.appcompat.widget.Toolbar
+            android:id="@+id/searchToolbars"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            app:layout_collapseMode="pin"
+            />
+
+        </com.google.android.material.appbar.CollapsingToolbarLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="4dp"
+            android:background="@color/bw">
+
+            <EditText
+                android:id="@+id/searchText"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_marginStart="12dp"
+                android:layout_marginEnd="12dp"
+                android:autofillHints="zon awlna"
+                android:hint="@string/zon_ding_gelhna_mun"
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:padding="12dp"
+                android:paddingEnd="48dp"
+                android:background="@drawable/search_bg"/>
+
+            <ImageView
+                android:id="@+id/searchBtn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/baseline_search_24"
+                android:layout_alignParentEnd="true"
+                android:padding="12dp"
+                android:contentDescription="@string/search_button_description"
+                android:layout_marginEnd="14dp"/>
+
+            <!-- Progress Bar -->
+            <ProgressBar
+                android:id="@+id/progressBar"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                android:padding="12dp"
+                android:layout_marginEnd="14dp"
+                android:indeterminateTint="@color/mat600"
+                android:visibility="gone"
+                android:layout_alignParentEnd="true" />
+
+        </RelativeLayout>
+
+        <LinearLayout
+            android:id="@+id/searchOptionsGroup"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bw"
+            android:orientation="horizontal">
+
+            <RadioButton
+                android:id="@+id/radioCurrentChapter"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/tua_abu_pen"
+                android:layout_marginStart="20dp"
+                android:background="@color/bw"/>
+
+            <RadioButton
+                android:id="@+id/radioWholeBook"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="@string/a_bu_pumpi"
+                android:layout_marginEnd="20dp"
+                android:background="@color/bw"/>
+        </LinearLayout>
+
+        <TextView
+            android:id="@+id/totalCountTextView"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/bw"
+            android:textAlignment="center"
+            android:padding="4dp"
+            android:visibility="gone"
+            android:textSize="16sp"
+            android:textStyle="bold"/>
+
+    </com.google.android.material.appbar.AppBarLayout>
+
+
+    <!-- Search Results -->
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/searchResultsRecyclerView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="12dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+
+</androidx.coordinatorlayout.widget.CoordinatorLayout>
