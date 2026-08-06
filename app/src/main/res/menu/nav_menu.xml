@@ -1,10 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
     <item
-        android:id="@+id/search_view"
-        android:icon="@drawable/baseline_search_24"
-        android:title="@string/zonbaihlamna" />
-
+        android:id="@+id/home"
+        android:title="@string/home"
+        android:icon="@drawable/icon_home" />
 
     <item
         android:title="@string/laisiangthou" >
@@ -37,11 +36,15 @@
     </item>
     <item android:title="@string/amel_apuam">
         <menu>
-
             <item
                 android:id="@+id/theme"
                 android:title="@string/theme"
                 android:icon="@drawable/icon_theme" />
+        </menu>
+    </item>
+
+    <item android:title="@string/laakkhawm">
+        <menu>
 
     <item
         android:id="@+id/about"
@@ -50,14 +53,20 @@
 
             <item
                 android:id="@+id/feedback"
-                android:title="Feedback Piakna"
+                android:title="@string/feedback_piakna"
                 android:icon="@drawable/icon_feedback" />
+    <item
+        android:id="@+id/changelog"
+        android:title="@string/changelog"
+        android:icon="@drawable/icon_changelog" />
 
     <item
         android:id="@+id/updateCheck"
         android:title="@string/check_for_updates"
         android:icon="@drawable/icon_dwnloads" />
+
         </menu>
     </item>
+
 
 </menu>

@@ -20,6 +20,11 @@
     <color name="mat600">#039BE5</color>
     <color name="toolbar">#97FFFFFF</color>
     <color name="my_colorSurface">#E8EAF6</color>
+    <color name="background">#000000</color>
+    <color name="bg">#515151</color>
+    <color name="status_bar">#E6F5F5F5</color>
+
+    <color name="red_color">#800505</color>
 
 
 </resources>

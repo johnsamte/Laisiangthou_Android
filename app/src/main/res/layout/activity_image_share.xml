@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:tool="http://schemas.android.com/tools"
     android:orientation="horizontal"
     android:fitsSystemWindows="true"
-    android:background="?attr/colorSurface">
+    android:background="?attr/colorSurface"
+    tool:context=".ImageShareActivity">
 
     <!-- Toolbar -->
     <androidx.appcompat.widget.Toolbar
@@ -48,6 +49,19 @@
             android:paddingEnd="16dp"
             android:textSize="22sp"
             android:justificationMode="inter_word" />
+
+        <!-- Watermark -->
+        <TextView
+            android:id="@+id/watermarkText"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Laisiangthou"
+            android:gravity="center"
+            android:textSize="13sp"
+            android:textColor="@color/red_color"
+            android:alpha="0.5"
+            android:layout_gravity="bottom"
+            android:layout_marginBottom="24dp"/>
     </FrameLayout>
 
     <!-- TabLayout -->
@@ -57,6 +71,7 @@
         android:layout_height="wrap_content"
         android:background="?attr/colorSurface"
         app:tabGravity="center"
+        android:contentDescription="tabCust"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@id/image_container"
@@ -96,7 +111,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintBottom_toBottomOf="parent" >
-        <include layout="@layout/fragment_color_picker"/>
+        <include layout="@layout/frag_color_picker"/>
     </FrameLayout>
 
     <FrameLayout

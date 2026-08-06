@@ -13,161 +13,139 @@ import java.util.Date
 import java.util.Locale
 
 class BookmarksAdapter(
-    private var bookmarks: List<Bookmark>,
+    private var bookmark: List<Bookmark>,
     private val deleteListener: (Bookmark) -> Unit,
     private val shareListener: (Bookmark) -> Unit
 ) : RecyclerView.Adapter<BookmarksAdapter.BookmarkViewHolder>() {
 
-    private var groupedBookmarks: List<BookmarkGroup> = listOf()
+    class BookmarkViewHolder(private val binding: ItemBookmarkBinding) :
+        RecyclerView.ViewHolder(binding.root) {
+        fun bind(
+            bookmark: Bookmark,
+            deleteListener: (Bookmark) -> Unit,
+            shareListener: (Bookmark) -> Unit
+        ) {
 
-    data class BookmarkGroup(
-        val bookName: String,
-        val bookId: Int,
-        val chapterNumber: Int,
-        val verseNumbers: List<Int>,
-        val combinedText: String,
-        val bookmarksInGroup: List<Bookmark>
-    )
+            binding.bookschaptBm.text = binding.root.context.getString(
+                R.string.bookmark_update,
+                bookmark.bookName,
+                bookmark.chapterNumber,
+                bookmark.verseNumber
+            )
 
-    fun updateBookmarks(newBookmarks: List<Bookmark>) {
-        bookmarks = newBookmarks
-        groupBookmarks()
-        notifyDataSetChanged()
-    }
+            binding.textViewBookmark.text = bookmark.bookmarkText
 
-    private fun groupBookmarks() {
-        groupedBookmarks = bookmarks
-            .groupBy { it.bookId to it.chapterNumber }
-            .map { (_, list) ->
-                val bookName = list.first().bookName
-                val bookId = list.first().bookId
-                val chapterNumber = list.first().chapterNumber
-                val verseNumbers = list.map { it.verseNumber }.sorted()
-                val combinedText = list.joinToString("\n") { it.bookmarkText }
-                BookmarkGroup(bookName, bookId, chapterNumber, verseNumbers, combinedText, list)
+            val formattedDate = formatStoredDate(bookmark.createdAt) // Use createdAt or updatedAt field from the note
+
+            binding.textViewTimestamp.text = formattedDate
+
+            // Set the drawable as the background
+            binding.root.setBackgroundResource(R.drawable.notes_bg)
+
+            // Show a popup menu when the menu icon is clicked
+            binding.iconMenu.setOnClickListener {
+                showPopupMenu(it, bookmark, deleteListener, shareListener)
             }
+        }
+
+        private fun formatStoredDate(storedDate: String): String {
+            try {
+                // Convert the stored date (string) into a Long and then to Date
+                val timestamp = storedDate.toLong()
+                val date = Date(timestamp)
+
+                // Format the date
+                val dateFormat = SimpleDateFormat("dd MMM yyyy | h:mm a", Locale.getDefault())
+                return dateFormat.format(date)
+            } catch (e: Exception) {
+                e.printStackTrace()
+                // Return a fallback value in case of an error
+                return "Unknown Date & Time"
+            }
+        }
+
+        private fun showPopupMenu(
+            view: View,
+            bookmark: Bookmark,
+            deleteListener: (Bookmark) -> Unit,
+            shareListener: (Bookmark) -> Unit
+        ) {
+            val popupMenu = PopupMenu(view.context, view)
+            popupMenu.menuInflater.inflate(R.menu.bookmark_menu, popupMenu.menu)
+            popupMenu.setOnMenuItemClickListener { menuItem ->
+                when (menuItem.itemId) {
+                    R.id.action_view -> {
+                        val intent = Intent(itemView.context, VerseTextActivity::class.java).apply {
+                            // Ensure this is correct for all books
+                            putExtra("BOOK_NAME", bookmark.bookName)
+                            putExtra("CHAPTER_NUMBER", bookmark.chapterNumber)
+                            putExtra("VERSE_NUMBER", bookmark.verseNumber) // Ensure this is the correct verse
+                            putExtra("BOOK_ID", bookmark.bookId)
+
+                        }
+                        itemView.context.startActivity(intent)
+
+                        true
+                    }
+
+                    R.id.action_delete -> {
+                        deleteListener(bookmark) // Call the delete listener
+                        true
+                    }
+
+                    R.id.action_share -> {
+                        shareListener(bookmark) // Call the share listener
+                        true
+                    }
+                    R.id.action_shareImage -> {
+                        // Start ImageShareActivity with the full text as an extra
+                        val intent = Intent(itemView.context, ImageShareActivity::class.java).apply {
+                            putExtra(
+                                "EXTRA_FULL_VERSE_TEXT",
+                                "${bookmark.bookName} ${bookmark.chapterNumber}\n${bookmark.bookmarkText}")
+                        }
+                        itemView.context.startActivity(intent)
+
+                        true
+                    }
+
+                    else -> false
+                }
+            }
+            popupMenu.show()
+        }
+
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookmarkViewHolder {
-        val binding = ItemBookmarkBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        val binding =
+            ItemBookmarkBinding.inflate(LayoutInflater.from(parent.context), parent, false)
         return BookmarkViewHolder(binding)
-    }
 
-    override fun getItemCount(): Int = groupedBookmarks.size
+    }
 
     override fun onBindViewHolder(holder: BookmarkViewHolder, position: Int) {
-        holder.bind(groupedBookmarks[position], deleteListener, shareListener)
-    }
+        val bookmark = bookmark[position]
 
-    inner class BookmarkViewHolder(private val binding: ItemBookmarkBinding) :
-        RecyclerView.ViewHolder(binding.root) {
+        holder.bind(bookmark, deleteListener, shareListener)
 
-        fun bind(group: BookmarkGroup, deleteListener: (Bookmark) -> Unit, shareListener: (Bookmark) -> Unit) {
-            val condensed = getCondensedVerseString(group.verseNumbers)
-            binding.bookschaptBm.text = binding.root.context.getString(R.string.bookmark_header, group.bookName, group.chapterNumber, condensed)
-
-            // Join all cleaned bookmark texts into a single line
-            val cleanedText = group.bookmarksInGroup.joinToString(" ") { it.bookmarkText.trim() }
-            binding.textViewBookmark.text = cleanedText
-
-            // Timestamp
-            val firstBookmark = group.bookmarksInGroup.firstOrNull()
-            val formattedDate = firstBookmark?.createdAt?.let { formatStoredDate(it) } ?: "Unknown Date & Time"
-            binding.textViewTimestamp.text = formattedDate
-
-            binding.root.setBackgroundResource(R.drawable.notes_bg)
-
-            binding.iconMenu.setOnClickListener {
-                val popupMenu = PopupMenu(it.context, it)
-                popupMenu.menuInflater.inflate(R.menu.bookmark_menu, popupMenu.menu)
-                popupMenu.setOnMenuItemClickListener { menuItem ->
-                    when (menuItem.itemId) {
-                        R.id.action_view -> {
-                            val intent = Intent(it.context, VerseTextActivity::class.java).apply {
-                                putExtra("BOOK_NAME", group.bookName)
-                                putExtra("CHAPTER_NUMBER", group.chapterNumber)
-                                putExtra("BOOK_ID", group.bookId)
-                                putExtra("VERSE_NUMBER", group.verseNumbers.firstOrNull() ?: 1)
-                            }
-                            it.context.startActivity(intent)
-                            true
-                        }
-                        R.id.action_delete -> {
-                            // Delete all bookmarks in this group
-                            group.bookmarksInGroup.forEach { deleteListener(it) }
-                            true
-                        }
-                        R.id.action_share -> {
-                            shareListener(Bookmark(
-                                id = 0,
-                                bookId = group.bookId,
-                                bookName = group.bookName,
-                                chapterNumber = group.chapterNumber,
-                                verseNumber = 0,
-                                bookmarkText = group.combinedText,
-                                createdAt = "",
-                                updatedAt = ""
-                            ))
-                            true
-                        }
-                        R.id.action_shareImage -> {
-                            val intent = Intent(it.context, ImageShareActivity::class.java).apply {
-                                putExtra("EXTRA_FULL_VERSE_TEXT", "${group.bookName} ${group.chapterNumber}\n${group.combinedText}")
-                            }
-                            it.context.startActivity(intent)
-                            true
-                        }
-                        else -> false
-                    }
-                }
-                popupMenu.show()
+        holder.itemView.setOnClickListener {
+            // Navigate to the VersesActivity
+            val intent = Intent(holder.itemView.context, VerseTextActivity::class.java).apply {
+                putExtra("BOOK_NAME", bookmark.bookName)
+                putExtra("CHAPTER_NUMBER", bookmark.chapterNumber)
+                putExtra("VERSE_NUMBER", bookmark.verseNumber)
+                putExtra("BOOK_ID", bookmark.bookId)
             }
-
-            // Click item to open first verse
-            binding.root.setOnClickListener {
-                val intent = Intent(it.context, VerseTextActivity::class.java).apply {
-                    putExtra("BOOK_NAME", group.bookName)
-                    putExtra("CHAPTER_NUMBER", group.chapterNumber)
-                    putExtra("BOOK_ID", group.bookId)
-                    putExtra("VERSE_NUMBER", group.verseNumbers.firstOrNull() ?: 1)
-                }
-                it.context.startActivity(intent)
-            }
-        }
-
-        private fun getCondensedVerseString(verseNumbers: List<Int>): String {
-            if (verseNumbers.isEmpty()) return ""
-            val sorted = verseNumbers.sorted()
-            val condensed = mutableListOf<String>()
-            var start = sorted.first()
-            var prev = start
-            for (i in 1 until sorted.size) {
-                val current = sorted[i]
-                if (current == prev + 1) prev = current
-                else {
-                    if (start == prev) condensed.add("$start") else condensed.add("$start-$prev")
-                    start = current
-                    prev = current
-                }
-            }
-            if (start == prev) condensed.add("$start") else condensed.add("$start-$prev")
-            return condensed.joinToString(",")
+            holder.itemView.context.startActivity(intent)
         }
     }
-    private fun formatStoredDate(storedDate: String): String {
-        try {
-            // Convert the stored date (string) into a Long and then to Date
-            val timestamp = storedDate.toLong()
-            val date = Date(timestamp)
 
-            // Format the date
-            val dateFormat = SimpleDateFormat("dd MMM yyyy | h:mm a", Locale.getDefault())
-            return dateFormat.format(date)
-        } catch (e: Exception) {
-            e.printStackTrace()
-            // Return a fallback value in case of an error
-            return "Unknown Date & Time"
-        }
+    override fun getItemCount(): Int = bookmark.size
+
+    fun updateBookmarks(newBookmarks: List<Bookmark>) {
+        bookmark = newBookmarks
+        notifyDataSetChanged()
     }
 
 }

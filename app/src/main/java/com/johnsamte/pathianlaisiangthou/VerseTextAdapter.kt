@@ -30,6 +30,10 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.RecyclerView
 import com.johnsamte.pathianlaisiangthou.databinding.ItemVerseTextBinding
+import androidx.core.util.size
+import androidx.core.util.isNotEmpty
+import androidx.core.util.isEmpty
+import androidx.core.graphics.toColorInt
 
 class VerseTextAdapter (
     private var verses: List<Verses> = emptyList(),  //List<Verses>,
@@ -40,13 +44,10 @@ class VerseTextAdapter (
 
 ) : RecyclerView.Adapter<VerseTextAdapter.VerseViewHolder>(), Filterable {
     private var filteredVerses: List<Verses> = verses
-    //private var highlightedVerse: Int = -1
     private var searchQuery: String? = null
-    private val highlightedTextColor = Color.parseColor("#C6861D")
-    private val searchHighlightColor = Color.parseColor("#ABC6861D")
+    private val highlightedTextColor = "#C6861D".toColorInt()
+    private val searchHighlightColor = "#ABC6861D".toColorInt()
     private val selectedVerseNumbers = SparseBooleanArray()
-   // private val selectedVerseNumbersColors = SparseIntArray()
-    private var typeface: Typeface? = null
     private val notedVerses = mutableSetOf<Int>()
     private val bookmarkedVerses = mutableSetOf<Int>()
     private val highlightedVerse = mutableSetOf<Int>()
@@ -55,7 +56,7 @@ class VerseTextAdapter (
     inner class VerseViewHolder(private val binding: ItemVerseTextBinding) : RecyclerView.ViewHolder(binding.root) {
         fun bind(
             verses: List<Verses>,
-            highlightedVerse: MutableSet<Int>
+            highlightedVerse: MutableSet<Int>,
             //selectedVerseNumbersColors: SparseIntArray
         ) {
             val paragraphText = SpannableStringBuilder()
@@ -547,7 +548,7 @@ class VerseTextAdapter (
                 } else {
                     // If the verse is selected, unselect it
                     selectedVerseNumbers.delete(verseNumber)
-                    if (selectedVerseNumbers.size() == 0) {
+                    if (selectedVerseNumbers.isEmpty()) {
                         activity.hideBottomSheet()
                     }
                 }
@@ -555,21 +556,6 @@ class VerseTextAdapter (
                 notifyItemChanged(bindingAdapterPosition)
             }
         }
-
-        //private fun showBottomSheetOptions() {
-            // Filter selected verses to include only those from the current chapter
-            //val selectedVersesText = verses
-                //.filter { selectedVerseNumbers.get(it.verseNumber) }
-                //.joinToString("\n") { "${it.verseNumber} ${it.text}" }
-
-           // if (selectedVersesText.isNotEmpty()) {
-               // val bookName = activity.intent.getStringExtra("BOOK_ID") ?: ""
-               // val chapterNumber = activity.intent.getIntExtra("CHAPTER_NUMBER", -1)
-
-                // Show the bottom sheet with the selected verses
-               // activity.showBottomSheet(selectedVersesText, bookName, chapterNumber.toString())
-           // }
-        //}
 
         private fun showBottomSheetOptions() {
 
@@ -657,16 +643,6 @@ class VerseTextAdapter (
 
     override fun getItemCount(): Int = 1
 
-    //fun setHighlightedVerse(verseNumber: Int) {
-       // highlightedVerse = verseNumber
-        //notifyDataSetChanged()  // Refresh the RecyclerView to show highlighted verse
-
-        // Reset the highlighted verse after 3 seconds
-        //Handler(Looper.getMainLooper()).postDelayed({
-           // highlightedVerse = -1
-           // notifyDataSetChanged()  // Refresh again to remove highlight
-        //}, 5000)
-    //}
         fun setHighlightedVerse(verseNumber: List<Int>) {
 
             highlightedVerse.clear()
@@ -678,7 +654,7 @@ class VerseTextAdapter (
             Handler(Looper.getMainLooper()).postDelayed({
                 highlightedVerse.clear()
                 notifyDataSetChanged()
-            }, 5000)
+            }, 3000)
         }
 
     fun updateVerses(newVerses: List<Verses>) {
@@ -741,10 +717,10 @@ class VerseTextAdapter (
     }
 
     fun clearSelectedVerses() {
-        if (selectedVerseNumbers.size() > 0) {
+        if (selectedVerseNumbers.isNotEmpty()) {
             // Collect the affected verse numbers
             val affectedPositions = mutableListOf<Int>()
-            for (i in 0 until selectedVerseNumbers.size()) {
+            for (i in 0 until selectedVerseNumbers.size) {
                 val verseNumber = selectedVerseNumbers.keyAt(i)
                 val position = verses.indexOfFirst { it.verseNumber == verseNumber }
                 if (position != -1) {
@@ -780,7 +756,7 @@ class VerseTextAdapter (
     fun getSelectedVerses(): List<Int> {
         val selectedList = mutableListOf<Int>()
 
-        for (i in 0 until selectedVerseNumbers.size()) {
+        for (i in 0 until selectedVerseNumbers.size) {
             val verseNumber = selectedVerseNumbers.keyAt(i)
             selectedList.add(verseNumber)
         }
@@ -790,7 +766,7 @@ class VerseTextAdapter (
     // Returns selected verses as Pair<verseNumber, verseText>
     fun getSelectedVersesWithText(): List<Pair<Int, String>> {
         val selectedList = mutableListOf<Pair<Int, String>>()
-        for (i in 0 until selectedVerseNumbers.size()) {
+        for (i in 0 until selectedVerseNumbers.size) {
             val verseNumber = selectedVerseNumbers.keyAt(i)
             val verse = verses.find { it.verseNumber == verseNumber }
             if (verse != null) {

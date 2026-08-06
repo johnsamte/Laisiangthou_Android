@@ -180,7 +180,8 @@ class LaisiangthouRepository (private val context: Context) {
     fun saveNote(
         chapterId: Int,
         referenceKey: String,
-        noteText: String
+        noteText: String,
+        noteColor: Int
     ): Boolean {
 
         val db = LaisiangthouDatabaseManager.getDatabase(context)
@@ -192,6 +193,7 @@ class LaisiangthouRepository (private val context: Context) {
         val updateValues = ContentValues().apply {
             put("note_text", noteText)
             put("updated_at", currentTime)
+            put("note_color", noteColor)
         }
 
         val rowsUpdated = db.update(
@@ -213,6 +215,7 @@ class LaisiangthouRepository (private val context: Context) {
                 put("note_text", noteText)
                 put("created_at", currentTime)
                 put("updated_at", currentTime)
+                put("note_color", noteColor)
             }
 
             db.insertOrThrow("Notes", null, insertValues)
@@ -258,6 +261,7 @@ class LaisiangthouRepository (private val context: Context) {
                 put("bookmark_text", noteText)
                 put("created_at", currentTime)
                 put("updated_at", currentTime)
+
             }
 
             db.insertOrThrow("Bookmarks", null, insertValues)
@@ -296,6 +300,7 @@ class LaisiangthouRepository (private val context: Context) {
             Notes.note_text,
             Notes.created_at,
             Notes.updated_at,
+            Notes.note_color,
             
             Chapters.chapter_number,
             Books.name AS book_name
@@ -321,12 +326,14 @@ class LaisiangthouRepository (private val context: Context) {
                     createdAt = cursor.getString(cursor.getColumnIndexOrThrow("created_at")),
                     updatedAt = cursor.getString(cursor.getColumnIndexOrThrow("updated_at")),
                     bookName = cursor.getString(cursor.getColumnIndexOrThrow("book_name")),
+                    noteColor = cursor.getInt(cursor.getColumnIndexOrThrow("note_color"))
 
                 )
 
                 notes.add(note)
 
             } while (cursor.moveToNext())
+
         }
 
         cursor.close()

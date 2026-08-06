@@ -13,7 +13,7 @@ android {
         minSdk = 31
         targetSdk = 36
         versionCode = 1
-        versionName = "5.0.1"
+        versionName = "5.0.2"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -40,6 +40,7 @@ android {
 dependencies {
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.appcompat)
+    implementation(libs.google.material)
     implementation(libs.material)
     implementation(libs.androidx.activity)
     implementation(libs.androidx.constraintlayout)
@@ -51,5 +52,8 @@ dependencies {
     implementation (libs.converter.gson)
     implementation ("com.larswerkman:HoloColorPicker:1.5")
     implementation(libs.androidx.core.splashscreen)
+
+    implementation("com.github.skydoves:colorpickerview:2.4.0")
+
 
 }

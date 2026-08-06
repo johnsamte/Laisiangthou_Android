@@ -24,6 +24,7 @@ class MainSearchActivity : AppCompatActivity() {
     private lateinit var binding: ActivityMainSearchBinding
     private lateinit var searchAdapter: SearchAdapter
     private lateinit var laisiangthouRepo: LaisiangthouRepository
+    private var searchJob: Job? = null
     private var chapterId: Int = -1
     private var bookId: Int = -1
 
@@ -43,31 +44,76 @@ class MainSearchActivity : AppCompatActivity() {
         binding.searchMainRecyclerView.layoutManager = LinearLayoutManager(this)
         binding.searchMainRecyclerView.adapter = searchAdapter
 
-        binding.searchText.addTextChangedListener(object : TextWatcher {
-            private var searchJob: Job? = null
+        binding.searchEdit.addTextChangedListener(object : TextWatcher {
 
-            override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+            override fun beforeTextChanged(
+                s: CharSequence?,
+                start: Int,
+                count: Int,
+                after: Int
+            ) {}
 
-            override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
-                if (s.isNullOrBlank()) {
-                    searchAdapter.submitListWithQuery(emptyList(), "")
-                    binding.totalCountTextView.visibility = View.GONE
-                    searchJob?.cancel()
-                }
-            }
+            override fun onTextChanged(
+                s: CharSequence?,
+                start: Int,
+                before: Int,
+                count: Int
+            ) {}
 
             override fun afterTextChanged(s: Editable?) {
+
                 val query = s?.toString()?.trim().orEmpty()
+
+                // Show / hide clear button
+                if (query.isEmpty()) {
+
+                    if (binding.clearCard.visibility == View.VISIBLE) {
+                        binding.clearCard.animate()
+                            .alpha(0f)
+                            .scaleX(0.7f)
+                            .scaleY(0.7f)
+                            .setDuration(180)
+                            .withEndAction {
+                                binding.clearCard.visibility = View.GONE
+                            }
+                            .start()
+                    }
+
+                } else {
+
+                    if (binding.clearCard.visibility != View.VISIBLE) {
+                        binding.clearCard.visibility = View.VISIBLE
+                        binding.clearCard.alpha = 0f
+                        binding.clearCard.scaleX = 0.7f
+                        binding.clearCard.scaleY = 0.7f
+
+                        binding.clearCard.animate()
+                            .alpha(1f)
+                            .scaleX(1f)
+                            .scaleY(1f)
+                            .setDuration(180)
+                            .start()
+                    }
+                }
+
                 searchJob?.cancel()
 
-                if (query.isNotEmpty()) {
-                    searchJob = lifecycleScope.launch {
-                        delay(300) // debounce
-                        performSearch(query) // 👈 reuse function
-                    }
+                if (query.isBlank()) {
+                    searchAdapter.submitListWithQuery(emptyList(), "")
+                    binding.totalCountTextView.visibility = View.GONE
+                    return
+                }
+
+                searchJob = lifecycleScope.launch {
+                    delay(300)
+                    performSearch(query)
                 }
             }
         })
+
+        binding.clearButton.setOnClickListener {
+            binding.searchEdit.text?.clear()
+        }
 
         // Set up toolbar
         setupToolbar()
@@ -82,65 +128,78 @@ class MainSearchActivity : AppCompatActivity() {
             .trim() // Trim leading and trailing spaces
     }
 
-    private fun performSearch(query: String) {
-        lifecycleScope.launch {
-            val results = withContext(Dispatchers.IO) {
-                // this will automatically check if it's a reference or normal text
-                laisiangthouRepo.searchBiblePumpi(query)
-            }
+    private suspend fun performSearch(query: String) {
 
-            val cleanedResults = results.map { result ->
-                result.copy(text = cleanText(result.text))
-            }
+        val results = withContext(Dispatchers.IO) {
+            // this will automatically check if it's a reference or normal text
+            laisiangthouRepo.searchBiblePumpi(query)
+        }
 
-            // only apply exact word filter for normal text search
-            val filteredResults = if (Regex("""^\s*[a-zA-Z]+\s+\d+:\d+\s*$""").matches(query)) {
-                // Reference search → don’t filter, just return as is
+        val cleanedResults = results.map { result ->
+            result.copy(text = cleanText(result.text))
+        }
+
+        // only apply exact word filter for normal text search
+        val filteredResults =
+            if (Regex("""^\s*[a-zA-Z]+\s+\d+:\d+\s*$""").matches(query)) {
                 cleanedResults
             } else {
-                // Normal text search → apply word boundary filtering
-                val exactWordRegex = Regex("\\b${Regex.escape(query)}\\b", RegexOption.IGNORE_CASE)
+                val exactWordRegex =
+                    Regex("\\b${Regex.escape(query)}\\b", RegexOption.IGNORE_CASE)
+
                 cleanedResults.filter { result ->
                     exactWordRegex.containsMatchIn(result.text)
                 }
             }
 
-            withContext(Dispatchers.Main) {
-                searchAdapter.submitListWithQuery(filteredResults, query)
+        // Ignore stale searches
+        if (binding.searchEdit.text.toString().trim() != query) {
+            return
+        }
 
-                val totalHighlightCount = filteredResults.sumOf {
-                    countExactWordOccurrences(it.text, query)
-                }
+        searchAdapter.submitListWithQuery(filteredResults, query)
 
-                if (totalHighlightCount > 0) {
-                    val totalCountText = getString(R.string.total_results, totalHighlightCount)
-                    val spannable = SpannableString(totalCountText)
-                    val countString = totalHighlightCount.toString()
-                    val startIndex = totalCountText.indexOf(countString)
-                    val endIndex = startIndex + countString.length
+        val totalHighlightCount = filteredResults.sumOf {
+            countExactWordOccurrences(it.text, query)
+        }
 
-                    if (startIndex != -1) {
-                        spannable.setSpan(
-                            ForegroundColorSpan(ContextCompat.getColor(this@MainSearchActivity, R.color.red)),
-                            startIndex,
-                            endIndex,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+        if (totalHighlightCount > 0) {
+
+            val totalCountText =
+                getString(R.string.total_results, totalHighlightCount)
+
+            val spannable = SpannableString(totalCountText)
+
+            val countString = totalHighlightCount.toString()
+            val startIndex = totalCountText.indexOf(countString)
+            val endIndex = startIndex + countString.length
+
+            if (startIndex != -1) {
+                spannable.setSpan(
+                    ForegroundColorSpan(
+                        ContextCompat.getColor(
+                            this@MainSearchActivity,
+                            R.color.red
                         )
-                        spannable.setSpan(
-                            StyleSpan(Typeface.BOLD),
-                            startIndex,
-                            endIndex,
-                            Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
-                        )
-                    }
+                    ),
+                    startIndex,
+                    endIndex,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
 
-                    binding.totalCountTextView.text = spannable
-                    binding.totalCountTextView.visibility = View.VISIBLE
-                } else {
-                    binding.totalCountTextView.visibility = View.GONE
-
-                }
+                spannable.setSpan(
+                    StyleSpan(Typeface.BOLD),
+                    startIndex,
+                    endIndex,
+                    Spannable.SPAN_EXCLUSIVE_EXCLUSIVE
+                )
             }
+
+            binding.totalCountTextView.text = spannable
+            binding.totalCountTextView.visibility = View.VISIBLE
+
+        } else {
+            binding.totalCountTextView.visibility = View.GONE
         }
     }
 

@@ -10,7 +10,7 @@
         android:id="@+id/bookNameTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Book Name"
+        android:text="@string/book_name"
         android:textSize="20sp"
         android:textStyle="bold" />
 
@@ -18,7 +18,7 @@
         android:id="@+id/verseTextView"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Verse text"
+        android:text="@string/verse_text"
         android:textSize="18sp"
         android:layout_marginStart="12dp"
         android:justificationMode="inter_word"/>

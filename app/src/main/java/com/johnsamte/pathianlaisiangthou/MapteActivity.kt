@@ -32,11 +32,10 @@ class MapteActivity : AppCompatActivity() {
             "image5.jpg" to "Jerusalem Leh Akimvel",
             "image6.jpg" to "Jerusalem A Herod Tempul Kigeldan"
         )
-        val columnWidthDp = 150f // Set this value as per your requirement
-        val spanCount = calculateNoOfColumns(this, columnWidthDp)
-        binding.mapteRecyclerView.layoutManager = GridLayoutManager(this, spanCount)
-        // Set adapter with click handler
-        // Adapter item click listener
+        //val columnWidthDp = 150f // Set this value as per your requirement
+        //val spanCount = calculateNoOfColumns(this)
+        binding.mapteRecyclerView.layoutManager =
+            GridLayoutManager(this, calculateNoOfColumns(this))
         binding.mapteRecyclerView.adapter = MapteAdapter(this, imageList) { selectedImage ->
             // Load the image from assets or cache and open in the system photo viewer
             loadImageAndOpenInSystemViewer(selectedImage)
@@ -77,10 +76,13 @@ class MapteActivity : AppCompatActivity() {
         startActivity(intent)
     }
 
-    private fun calculateNoOfColumns(context: Context, columnWidthDp: Float): Int {
+    private fun calculateNoOfColumns(context: Context): Int {
+        val columnWidthDp = 200f   // Set your desired item width here
+
         val displayMetrics = context.resources.displayMetrics
         val screenWidthDp = displayMetrics.widthPixels / displayMetrics.density
-        return maxOf(1, (screenWidthDp / columnWidthDp).toInt()) // Ensure at least 1 column
+
+        return maxOf(1, (screenWidthDp / columnWidthDp).toInt())
     }
 
 

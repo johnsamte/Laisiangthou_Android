@@ -1,9 +1,7 @@
 package com.johnsamte.pathianlaisiangthou
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.Intent
-import android.content.res.Configuration
 import android.graphics.Bitmap
 import android.graphics.BlurMaskFilter
 import android.graphics.Canvas
@@ -39,9 +37,13 @@ import com.google.android.material.tabs.TabLayout
 import com.google.android.material.tabs.TabLayoutMediator
 import com.johnsamte.pathianlaisiangthou.databinding.ActivityImageShareBinding
 import com.johnsamte.pathianlaisiangthou.databinding.FragmentImagesBinding
-import com.larswerkman.holocolorpicker.ColorPicker
+import com.skydoves.colorpickerview.AlphaTileView
+import com.skydoves.colorpickerview.ColorPickerView
+import com.skydoves.colorpickerview.sliders.AlphaSlideBar
+import com.skydoves.colorpickerview.sliders.BrightnessSlideBar
 import java.io.File
 import java.io.FileOutputStream
+import com.skydoves.colorpickerview.listeners.ColorEnvelopeListener
 
 
 class ImageShareActivity : AppCompatActivity() {
@@ -192,7 +194,12 @@ class ImageShareActivity : AppCompatActivity() {
             R.drawable.images_10,
             R.drawable.images_11,
             R.drawable.images_12,
-            R.drawable.images_13
+            R.drawable.images_13,
+            R.drawable.images_14,
+            R.drawable.images_15,
+            R.drawable.images_16,
+            R.drawable.images_17,
+            R.drawable.images_18
         )
 
         // Calculate the number of columns for the GridLayoutManager
@@ -213,12 +220,8 @@ class ImageShareActivity : AppCompatActivity() {
                 binding.selectedImage.setImageResource(imageResId)
             }
         }
-        //binding.theImageRecycler.visibility = if (binding.theImageRecycler.visibility == View.GONE) View.VISIBLE else View.GONE
-        // Ensure the RecyclerView is visible
         binding.theImageRecycler.visibility = View.VISIBLE
     }
-
-
 
     // Calculate number of columns based on screen width
     private fun calculateNoOfColumns(): Int {
@@ -266,16 +269,6 @@ class ImageShareActivity : AppCompatActivity() {
         }
     }
 
-    // Utility to get Bitmap from a View
-    //private fun getBitmapFromView(view: View): Bitmap? {
-        //if (view.width <= 0 || view.height <= 0) return null
-        //return Bitmap.createBitmap(view.width, view.height, Bitmap.Config.ARGB_8888).apply {
-            //Canvas(this).apply {
-                //view.draw(this)
-            //}
-        //}
-    //}
-
     private fun getBitmapFromView(view: View): Bitmap? {
         // Ensure the view has valid dimensions
         if (view.width <= 0 || view.height <= 0) return null
@@ -301,19 +294,36 @@ class ImageShareActivity : AppCompatActivity() {
     // Save image to cache directory and return the Uri for sharing
     private fun saveImageToCache(bitmap: Bitmap): Uri? {
         return try {
+
             val cachePath = File(cacheDir, "images")
+
             if (!cachePath.exists()) {
-                cachePath.mkdirs() // Create the cache directory if it doesn't exist
+                cachePath.mkdirs()
             }
 
-            val file = File(cachePath, "shared_image.png")
-            val fileOutputStream = FileOutputStream(file)
-            bitmap.compress(Bitmap.CompressFormat.PNG, 100, fileOutputStream)
-            fileOutputStream.close()
 
-            // Get URI from FileProvider (ensure you have a FileProvider in your manifest)
-            FileProvider.getUriForFile(this, "$packageName.provider", file)
+            val file = File(cachePath, "shared_image.png")
+
+
+            FileOutputStream(file).use { outputStream ->
+
+                bitmap.compress(
+                    Bitmap.CompressFormat.PNG,
+                    100,
+                    outputStream
+                )
+            }
+
+
+            FileProvider.getUriForFile(
+                this,
+                "$packageName.provider",
+                file
+            )
+
+
         } catch (e: Exception) {
+
             e.printStackTrace()
             null
         }
@@ -381,7 +391,7 @@ class ImageShareActivity : AppCompatActivity() {
     private fun theColorPicker() {
 
         if (!colorPickerInitialized) {
-            val colorPickerLayout = layoutInflater.inflate(R.layout.fragment_color_picker, binding.colorPickerContainer, false)
+            val colorPickerLayout = layoutInflater.inflate(R.layout.frag_color_picker, binding.colorPickerContainer, false)
             binding.colorPickerContainer.addView(colorPickerLayout)
             setupColorPicker(colorPickerLayout)
             colorPickerInitialized = true
@@ -390,16 +400,52 @@ class ImageShareActivity : AppCompatActivity() {
     }
 
     // Setup color picker to update text color
-    private fun setupColorPicker(view: View) {
-        val colorPicker = view.findViewById<ColorPicker>(R.id.color_picker)
-        colorPicker.addSVBar(view.findViewById(R.id.sv_bar))
-        colorPicker.addOpacityBar(view.findViewById(R.id.opacity_bar))
-        colorPicker.addSaturationBar(view.findViewById(R.id.saturation_bar))
-        colorPicker.addValueBar(view.findViewById(R.id.value_bar))
+   // private fun setupColorPicker(view: View) {
+        // val colorPicker = view.findViewById<ColorPicker>(R.id.color_picker)
+        //colorPicker.addSVBar(view.findViewById(R.id.sv_bar))
+        //colorPicker.addOpacityBar(view.findViewById(R.id.opacity_bar))
+        //colorPicker.addSaturationBar(view.findViewById(R.id.saturation_bar))
+        // colorPicker.addValueBar(view.findViewById(R.id.value_bar))
 
-        colorPicker.setOnColorChangedListener { color ->
-            binding.verseTextViewImageShare.setTextColor(color)
-        }
+        // colorPicker.setOnColorChangedListener { color ->
+        // binding.verseTextViewImageShare.setTextColor(color)
+        //}
+    //}
+
+    private fun setupColorPicker(view: View) {
+
+        val colorPickerView =
+            view.findViewById<ColorPickerView>(R.id.colorPickerView)
+
+        val alphaSlideBar =
+            view.findViewById<AlphaSlideBar>(R.id.alphaSlideBar)
+
+        val brightnessSlide =
+            view.findViewById<BrightnessSlideBar>(R.id.brightnessSlide)
+
+        val flagColorLayout =
+            view.findViewById<AlphaTileView>(R.id.flag_color_layout)
+
+        val flagColorCode =
+            view.findViewById<TextView>(R.id.flag_color_code)
+
+        colorPickerView.attachAlphaSlider(alphaSlideBar)
+        colorPickerView.attachBrightnessSlider(brightnessSlide)
+
+        colorPickerView.setColorListener(
+            ColorEnvelopeListener { envelope, _ ->
+
+                val color = envelope.color
+                binding.verseTextViewImageShare.setTextColor(color)
+
+                // Update preview color box
+                flagColorLayout.setPaintColor(color)
+
+                // Update HEX text
+                flagColorCode.text = envelope.hexCode
+
+            }
+        )
     }
 
 

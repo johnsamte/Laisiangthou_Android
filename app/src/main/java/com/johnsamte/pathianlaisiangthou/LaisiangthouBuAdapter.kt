@@ -5,6 +5,7 @@ import android.content.Intent
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.ListAdapter
@@ -15,7 +16,8 @@ class LaisiangthouBuAdapter(
     private val context: Context
 ) : ListAdapter<LaisiangthouBu, LaisiangthouBuAdapter.BookViewHolder>(DiffCallback()) {
 
-    private var expandedBookPosition: Int? = null
+    // Track expanded item by ID (NOT position)
+    private var expandedBookId: Int? = null
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): BookViewHolder {
         val binding = ItemBookBinding.inflate(
@@ -27,18 +29,19 @@ class LaisiangthouBuAdapter(
     }
 
     override fun onBindViewHolder(holder: BookViewHolder, position: Int) {
-        holder.bind(getItem(position), position)
+        holder.bind(getItem(position))
     }
 
     inner class BookViewHolder(
         private val binding: ItemBookBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(book: LaisiangthouBu, position: Int) {
+        fun bind(book: LaisiangthouBu) {
 
             binding.bookName.text = book.name
 
-            val isExpanded = position == expandedBookPosition
+            // Expand state based on ID
+            val isExpanded = book.id == expandedBookId
             binding.chapterRecyclerView.visibility =
                 if (isExpanded) View.VISIBLE else View.GONE
 
@@ -51,30 +54,37 @@ class LaisiangthouBuAdapter(
                     return@setOnClickListener
                 }
 
-                if (expandedBookPosition == position) {
-                    // Collapse current
-                    expandedBookPosition = null
-                    notifyItemChanged(position)
+                val previousExpandedId = expandedBookId
+
+                // Toggle expansion
+                expandedBookId = if (expandedBookId == book.id) {
+                    null
                 } else {
-                    // Expand new & collapse previous
-                    val previousExpandedPosition = expandedBookPosition
-                    expandedBookPosition = position
+                    book.id
+                }
 
-                    previousExpandedPosition?.let {
-                        notifyItemChanged(it)
+                // Refresh previously expanded item
+                previousExpandedId?.let { id ->
+                    val previousIndex = currentList.indexOfFirst { it.id == id }
+                    if (previousIndex != -1) {
+                        notifyItemChanged(previousIndex)
                     }
+                }
 
-                    notifyItemChanged(position)
+                // Refresh current clicked item
+                notifyItemChanged(bindingAdapterPosition)
 
-                    // Scroll selected item to top
+                // Scroll to top when expanding
+                if (expandedBookId == book.id) {
                     val recyclerView = binding.root.parent as? RecyclerView
                     val layoutManager = recyclerView?.layoutManager as? LinearLayoutManager
-                    layoutManager?.scrollToPositionWithOffset(position, 0)
+                    layoutManager?.scrollToPositionWithOffset(bindingAdapterPosition, 0)
                 }
             }
 
-            // Always bind chapter recycler when expanded
+            // Bind chapters only if expanded
             if (isExpanded) {
+
                 val chapterAdapter = ChapterAdapter(
                     book.chapters.map { it.chapterNumber }
                 ) { chapterNumber ->
@@ -104,10 +114,37 @@ class LaisiangthouBuAdapter(
         submitList(newBooks)
     }
 
+    fun clearExpansion() {
+        expandedBookId?.let { id ->
+            val index = currentList.indexOfFirst { it.id == id }
+            expandedBookId = null
+            if (index != -1) {
+                notifyItemChanged(index)
+            }
+        }
+    }
+
     private fun calculateNoOfColumns(context: Context): Int {
         val displayMetrics = context.resources.displayMetrics
         val dpWidth = displayMetrics.widthPixels / displayMetrics.density
         val scalingFactor = 60
         return (dpWidth / scalingFactor).toInt()
+    }
+
+    class DiffCallback : DiffUtil.ItemCallback<LaisiangthouBu>() {
+
+        override fun areItemsTheSame(
+            oldItem: LaisiangthouBu,
+            newItem: LaisiangthouBu
+        ): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(
+            oldItem: LaisiangthouBu,
+            newItem: LaisiangthouBu
+        ): Boolean {
+            return oldItem == newItem
+        }
     }
 }

@@ -18,5 +18,8 @@
     <color name="mat600">#039BE5</color>
     <color name="toolbar">#BE000000</color>
     <color name="my_colorSurface">#414141</color>
+    <color name="background">#FFFFFF</color>
+    <color name="bg">#515151</color>
+    <color name="status_bar">#E6181818</color>
 
 </resources>

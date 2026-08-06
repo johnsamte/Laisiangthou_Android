@@ -6,7 +6,7 @@
     android:padding="8dp"
     android:scrollbars="none"
     android:contentDescription="@string/scrollview"
-    android:background="?attr/colorSurface">
+    android:background="?attr/colorSurface" >
 
     <RelativeLayout
         android:layout_width="match_parent"

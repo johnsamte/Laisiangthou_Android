@@ -4,9 +4,8 @@
 
     <item
         android:id="@+id/action_search"
-        android:title="@string/laibu_minte_zonbaihlamna"
         android:icon="@drawable/baseline_search_24"
-        app:actionViewClass="androidx.appcompat.widget.SearchView"
+        android:title="@string/search"
         app:showAsAction="always" />
 
 </menu>

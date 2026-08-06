@@ -45,4 +45,20 @@
     <string name="title">thulu</string>
     <string name="body">feedback body </string>
     <string name="send_feedback">Khakna</string>
+    <string name="preparing_download">Preparing download…</string>
+    <string name="downloading_progress">Downloading… %1$d%%</string>
+    <string name="download_failed">Download failed</string>
+    <string name="download">Download</string>
+    <string name="no_download_file">No Download File</string>
+    <string name="laakkhawm">Laakkhawm</string>
+    <string name="feedback_piakna">Feedback Piakna</string>
+    <string name="changelog">Changelog</string>
+    <string name="tuni_thupi">Tuni Thupi</string>
+    <string name="menu_options">Menu options</string>
+    <string name="koihlut_hun_le_ni">Koihlut Hun-le-Ni</string>
+    <string name="book_name">Book Name</string>
+    <string name="verse_text">Verse text</string>
+    <string name="home">Home</string>
+    <string name="cancel">Cancel</string>
+    <string name="save">Save</string>
 </resources>

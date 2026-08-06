@@ -123,7 +123,8 @@ class NotesActivity : AppCompatActivity() {
                 val success = laisiangthouRepo.saveNote(
                     chapterId = note.chapterId,
                     referenceKey = note.referenceKey,
-                    noteText = updatedText
+                    noteText = updatedText,
+                    noteColor = note.noteColor
                 )
 
                 if (success) {

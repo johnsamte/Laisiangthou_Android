@@ -5,18 +5,20 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import com.johnsamte.pathianlaisiangthou.databinding.FragColorPickerBinding
 import com.johnsamte.pathianlaisiangthou.databinding.FragmentColorPickerBinding
 
 class ColorPickerFragment : Fragment() {
 
-    private var _binding: FragmentColorPickerBinding? = null
+    //private var _binding: FragmentColorPickerBinding? = null
+    private var _binding: FragColorPickerBinding? = null
     private val binding get() = _binding!!
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View {
-        _binding = FragmentColorPickerBinding.inflate(inflater, container, false)
+        _binding = FragColorPickerBinding.inflate(inflater, container, false)
         return binding.root
     }
 

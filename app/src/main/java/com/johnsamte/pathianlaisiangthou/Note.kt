@@ -8,6 +8,7 @@ data class Note(
     val noteText: String,
     val createdAt: String,
     val updatedAt: String,
-    val bookName: String
+    val bookName: String,
+    val noteColor: Int
 )
 

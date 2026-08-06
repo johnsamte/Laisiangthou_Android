@@ -2,6 +2,7 @@ package com.johnsamte.pathianlaisiangthou
 
 import android.content.Intent
 import android.graphics.Typeface
+import android.graphics.drawable.GradientDrawable
 import android.os.Bundle
 import android.text.SpannableString
 import android.text.SpannableStringBuilder
@@ -10,16 +11,31 @@ import android.text.style.RelativeSizeSpan
 import android.text.style.StyleSpan
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import androidx.recyclerview.widget.LinearLayoutManager
 import com.johnsamte.pathianlaisiangthou.databinding.ActivityNoteEditorBinding
 
 class NoteEditorActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityNoteEditorBinding
+    private var selectedColor: Int = NoteColors.DEFAULT
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         binding = ActivityNoteEditorBinding.inflate(layoutInflater)
         setContentView(binding.root)
+
+        binding.colorRecycler.layoutManager =
+            LinearLayoutManager(this, LinearLayoutManager.HORIZONTAL, false)
+
+        val adapter = NoteColorAdapter(NoteColors.COLORS) { color ->
+            selectedColor = color
+
+            // Update the root background live
+            val drawable = binding.root.background as? GradientDrawable
+            drawable?.setColor(color) ?: binding.root.setBackgroundColor(color)
+        }
+
+        binding.colorRecycler.adapter = adapter
 
         // ✅ Get data from intent
         val verseTexts = intent.getStringArrayListExtra("VERSE_TEXTS") ?: arrayListOf()
@@ -48,6 +64,7 @@ class NoteEditorActivity : AppCompatActivity() {
         }
 
         binding.textVersePreview.text = displayText
+        binding.textVersePreview.setBackgroundResource(R.drawable.rounded_ouline)
 
         binding.btnSave.setOnClickListener {
             val noteText = binding.editNote.text.toString().trim()
@@ -58,6 +75,7 @@ class NoteEditorActivity : AppCompatActivity() {
             val resultIntent = Intent().apply {
                 putExtra("REFERENCE_KEY", referenceKey)
                 putExtra("NOTE_TEXT", finalNote)
+                putExtra("NOTE_COLOR", selectedColor)
             }
 
             setResult(RESULT_OK, resultIntent)

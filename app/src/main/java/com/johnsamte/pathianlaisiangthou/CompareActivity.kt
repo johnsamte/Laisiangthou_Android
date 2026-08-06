@@ -20,6 +20,14 @@ class CompareActivity : AppCompatActivity() {
     private var chapterNumber: Int = -1
     private lateinit var bookName: String
 
+    // 🔥 Reuse Retrofit (do NOT rebuild every call)
+    private val retrofit by lazy {
+        Retrofit.Builder()
+            .baseUrl("https://bible-api.com/")
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+    }
+
     private val bookNameMap = mapOf(
         "Genesis" to "Genesis",  "Pianchilna" to "Genesis",
         "Eksodas" to "Exodus", "Pemkhiakna" to "Exodus",
@@ -101,10 +109,13 @@ class CompareActivity : AppCompatActivity() {
         bookId = intent.getIntExtra("BOOK_ID", -1)
         bookName = laisiangthouRepository.getBookNameById(bookId)
 
+        // 🔥 Extract ALL verse numbers
+        val verseNumbers = extractVerseNumbers(verseText)
 
-        val verseNumber = Regex("^\\d+").find(verseText.trim())?.value?.toIntOrNull() ?: 1
+        // 🔥 Setup toolbar properly
+        setupToolbar(bookName, chapterNumber, verseNumbers)
 
-        setupToolbar(bookName, chapterNumber, verseNumber)
+        // Show selected verses (your version)
         binding.yourVerseText.text = getFullVerseText(verseText)
 
         binding.yourVersionLabel.text =
@@ -113,129 +124,129 @@ class CompareActivity : AppCompatActivity() {
                 getSelectedBibleSource()
             )
 
+        val verseQuery = buildVerseQuery(verseNumbers)
         val englishBookName = bookNameMap[bookName] ?: bookName
-        fetchKJVVerse(englishBookName, chapter, verseNumber) { kjvText ->
-            runOnUiThread {
-                binding.kjvVerseText.text = kjvText ?: "KJV not available."
-            }
+
+        fetchVerse(englishBookName, chapter, verseQuery, "kjv") {
+            binding.kjvVerseText.text = it ?: "KJV not available."
         }
 
-        fetchWEBVerse(englishBookName, chapter, verseNumber) { webText ->
-            runOnUiThread {
-                binding.webVerseText.text = webText ?: "WEB not available."
-            }
+        fetchVerse(englishBookName, chapter, verseQuery, "web") {
+            binding.webVerseText.text = it ?: "WEB not available."
         }
     }
 
-    fun Context.getSelectedBibleSource(): String {
-        val prefs = getSharedPreferences(
-            LaisiangthouDatabaseManager.PREF_NAME,
-            MODE_PRIVATE
-        )
-        return prefs.getString(
-            LaisiangthouDatabaseManager.KEY_SOURCE,
-            LaisiangthouDatabaseManager.SOURCE_BSI
-        ) ?: LaisiangthouDatabaseManager.SOURCE_BSI
+    // ----------------------------------------------------
+    // 🔥 Extract multiple verse numbers
+    // ----------------------------------------------------
+    private fun extractVerseNumbers(text: String): List<Int> {
+        return text.split("\n")
+            .mapNotNull { line ->
+                Regex("^\\d+").find(line.trim())?.value?.toIntOrNull()
+            }
     }
 
-    private fun setupToolbar(bookName: String, chapterNumber: Int, verseNumber: Int) {
+    // ----------------------------------------------------
+    // 🔥 Build API query (comma separated)
+    // ----------------------------------------------------
+    private fun buildVerseQuery(verseNumbers: List<Int>): String {
+        return verseNumbers.sorted().joinToString(",")
+    }
+
+    // ----------------------------------------------------
+    // 🔥 Format toolbar title
+    // ----------------------------------------------------
+    private fun formatVerseTitle(verses: List<Int>): String {
+        val sorted = verses.sorted()
+
+        return if (sorted.size > 1 &&
+            sorted.zipWithNext().all { it.second == it.first + 1 }
+        ) {
+            "${sorted.first()}-${sorted.last()}"
+        } else {
+            sorted.joinToString(",")
+        }
+    }
+
+    // ----------------------------------------------------
+    // 🔥 Proper Toolbar Setup
+    // ----------------------------------------------------
+    private fun setupToolbar(
+        bookName: String,
+        chapterNumber: Int,
+        verseNumbers: List<Int>
+    ) {
         setSupportActionBar(binding.compareToolbar)
 
-        // Set the navigation click listener
         binding.compareToolbar.setNavigationOnClickListener {
             onBackPressedDispatcher.onBackPressed()
         }
 
-        binding.collapsingToolbar.apply {
-            title = "$bookName $chapterNumber : $verseNumber"
-            setCollapsedTitleTypeface(Typeface.DEFAULT_BOLD)
-            setExpandedTitleTypeface(Typeface.DEFAULT_BOLD)
-        }
-        // If you want the up button to show
+        val verseTitle = formatVerseTitle(verseNumbers)
+
+        binding.collapsingToolbar.title =
+            "$bookName $chapterNumber:$verseTitle"
+
+        binding.collapsingToolbar.setCollapsedTitleTypeface(Typeface.DEFAULT_BOLD)
+        binding.collapsingToolbar.setExpandedTitleTypeface(Typeface.DEFAULT_BOLD)
+
         supportActionBar?.apply {
             setDisplayHomeAsUpEnabled(true)
-            setDisplayShowTitleEnabled(false)  // Avoid double title (CollapsingToolbar handles it)
+            setDisplayShowTitleEnabled(false)
         }
     }
 
-    // Function to fetch the KJV verse
-    private fun fetchKJVVerse(bookName: String, chapter: Int, verse: Int, callback: (String?) -> Unit) {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://bible-api.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
+    // ----------------------------------------------------
+    // 🔥 Unified fetch method (KJV + WEB)
+    // ----------------------------------------------------
+    private fun fetchVerse(
+        bookName: String,
+        chapter: Int,
+        verseQuery: String,
+        translation: String,
+        callback: (String?) -> Unit
+    ) {
         val api = retrofit.create(BibleApiService::class.java)
 
-        // Format the query for KJV (bookName chapter:verse)
-        val formattedQuery = "$bookName $chapter:$verse".replace(" ", "%20")
+        val formattedQuery =
+            "$bookName $chapter:$verseQuery".replace(" ", "%20")
 
-        // Make the API request
-        api.getVerses(formattedQuery, "kjv").enqueue(object : Callback<BibleApiResponse> {
-            override fun onResponse(call: Call<BibleApiResponse>, response: Response<BibleApiResponse>) {
-                if (response.isSuccessful) {
-                    // Get the verse text from the response and prepend the verse number
-                    val kjvText = response.body()?.verses?.joinToString("\n") { verse ->
-                        // Using the verse number directly from the 'verse' attribute
-                        //val verseNumber = verse.verse
-                        //"$verseNumber ${verse.text.trim()}"
-                        verse.text.trim()
+        api.getVerses(formattedQuery, translation)
+            .enqueue(object : Callback<BibleApiResponse> {
+
+                override fun onResponse(
+                    call: Call<BibleApiResponse>,
+                    response: Response<BibleApiResponse>
+                ) {
+                    if (response.isSuccessful) {
+                        val text = response.body()?.verses
+                            ?.joinToString("\n") { it.text.trim() }
+
+                        runOnUiThread { callback(text) }
+                    } else {
+                        runOnUiThread { callback(null) }
                     }
-                    callback(kjvText) // Pass the KJV verse with the verse number
-                } else {
-                    callback(null) // If response is unsuccessful, pass null
                 }
-            }
 
-            override fun onFailure(call: Call<BibleApiResponse>, t: Throwable) {
-                callback(null) // If request fails, pass null
-            }
-        })
+                override fun onFailure(call: Call<BibleApiResponse>, t: Throwable) {
+                    runOnUiThread { callback(null) }
+                }
+            })
     }
 
-    private fun fetchWEBVerse(bookName: String, chapter: Int, verse: Int, callback: (String?) -> Unit) {
-        val retrofit = Retrofit.Builder()
-            .baseUrl("https://bible-api.com/")
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-
-        val api = retrofit.create(BibleApiService::class.java)
-
-        // Format the query for KJV (bookName chapter:verse)
-        val formattedQuery = "$bookName $chapter:$verse".replace(" ", "%20")
-
-        // Make the API request
-        api.getVerses(formattedQuery, "web").enqueue(object : Callback<BibleApiResponse> {
-            override fun onResponse(call: Call<BibleApiResponse>, response: Response<BibleApiResponse>) {
-                if (response.isSuccessful) {
-                    // Get the verse text from the response and prepend the verse number
-                    val webText = response.body()?.verses?.joinToString("\n") { verse ->
-                        // Using the verse number directly from the 'verse' attribute
-                        //val verseNumber = verse.verse
-                        //"$verseNumber ${verse.text.trim()}"
-                        verse.text.trim()
-                    }
-                    callback(webText) // Pass the KJV verse with the verse number
-                } else {
-                    callback(null) // If response is unsuccessful, pass null
-                }
-            }
-
-            override fun onFailure(call: Call<BibleApiResponse>, t: Throwable) {
-                callback(null) // If request fails, pass null
-            }
-        })
-    }
-
+    // ----------------------------------------------------
+    // 🔥 Display your version
+    // ----------------------------------------------------
     private fun getFullVerseText(verseText: String): SpannableStringBuilder {
         val fullText = SpannableStringBuilder()
-        val cleanedText = cleanText(verseText)  // Clean before splitting
+        val cleanedText = cleanText(verseText)
         val verses = cleanedText.split("\n")
 
         verses.forEach { verseLine ->
             val verseNumber = Regex("^\\d+").find(verseLine)?.value ?: ""
             val verseContent = verseLine.removePrefix("$verseNumber ")
             fullText.append(verseContent)
+            fullText.append("\n")
         }
 
         return fullText
@@ -247,8 +258,22 @@ class CompareActivity : AppCompatActivity() {
         return lines.joinToString("\n") {
             it.trim().replace("\\s+".toRegex(), " ")  // Replace multiple spaces with a single space
                 .replace("\n\n", "") // Replace double newlines with a single space
-                .replace("\\n", "\n")   // Replace any remaining single newline with a space
+                .replace("\\n", "")   // Replace any remaining single newline with a space
                 .replace("*", "") // Replace multiple spaces with a single space
         }
+    }
+
+    // ----------------------------------------------------
+    // 🔥 Bible Source
+    // ----------------------------------------------------
+    fun Context.getSelectedBibleSource(): String {
+        val prefs = getSharedPreferences(
+            LaisiangthouDatabaseManager.PREF_NAME,
+            MODE_PRIVATE
+        )
+        return prefs.getString(
+            LaisiangthouDatabaseManager.KEY_SOURCE,
+            LaisiangthouDatabaseManager.SOURCE_BSI
+        ) ?: LaisiangthouDatabaseManager.SOURCE_BSI
     }
 }

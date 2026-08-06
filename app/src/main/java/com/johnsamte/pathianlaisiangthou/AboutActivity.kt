@@ -44,45 +44,28 @@ class AboutActivity : AppCompatActivity() {
     private fun loadContent() {
         // Example rich text (HTML)
         val htmlText = """
-            <b>Laisiangthou App</b><br>
 
-The <b>Laisiangthou</b> app is designed to bring the word of God to your fingertips. 
-It provides a faithful translation of the Bible in Paite (Laisiangthou) language, making it easier for users to read, understand, and reflect on scripture.<br><br>
+<b>Laisiangthou peuhmah Pathian hatkhum a piak ahi a; 
+huaiziak in thuhilhna ding, taihilhna ding, bawlhoihna ding, 
+diktatna lam a kichilna ding in aphatuam hi.</b> <i>2 Tim 3:16</i><br><br>
 
-The app is intended for everyone — from students and pastors to families and individuals seeking spiritual guidance. 
-Whether you are reading for daily devotion, study, or worship, <b>Laisiangthou</b> offers tools to enhance your experience, including bookmarking, note-taking, and highlighting. 
-With its intuitive interface, users can navigate chapters and verses effortlessly and focus on spiritual growth without distraction.<br><br>
+Huaiziak in hiai Laisiangthou apps in Laisiangthou hawmzakna nasem ahih man in, 
+gingtu tamsem hong kibehlapna ding bang in phattuamna hon neih khak leh chih lam etna toh, 
+hiai app kuhkal leh chihtakna toh hong kibawlkhia hi.<br><br>
 
-<b>Key Features:</b><br>
-• Read the full Bible in Paite with chapter and verse navigation.<br>
-• Bookmark your favorite verses for quick access.<br>
-• Add personal notes to verses for reflection or study.<br>
-• Multi-verse selection for sharing or copying text.<br>
-• Search for specific words, phrases, or verses.<br>
-• Share verses as text or as styled images with friends and family.<br><br>
 
-<b>Design Philosophy:</b><br>
-The app is built for simplicity and accessibility. Our goal is to provide a smooth reading experience with clean typography, responsive layouts, and easy navigation.<br><br>
+Kuapeuhmah hiai <b>Laisiangthou App</b> toh kisai a kupnop hiam, hichi zodeuh leh chih nei hiam i om leh
+chiklaipeuh in a nuai a Email kipia leh <b>Feedback piakna</b> tungtawn in kithuzak theih gige ding hi.<br><br>
 
-<b>Contact & Feedback:</b><br>
-We welcome feedback, suggestions, and questions. Please reach out to our support team at <i>johnsamte09@new.lamka.net</i>.<br><br>
+<b>Developed by:</b> Johnsamte<br>
+<b>Email:</b> <a href="mailto:johnsamte09@new.lamka.net">johnsamte09@new.lamka.net</a><br><br>
 
 <b>Disclaimer:</b><br>
-All scripture text is for personal study and reference.<br> © All rights reserved.
+All scripture text is for personal study and reference.<br> © All rights reserved.<br><br>
         """.trimIndent()
 
         // Convert HTML to Spannable for TextView
         binding.aboutText.text = HtmlCompat.fromHtml(htmlText, HtmlCompat.FROM_HTML_MODE_LEGACY)
 
-        // Load image if needed dynamically
-       // binding.aboutImage.setImageResource(R.drawable.ic_launcher_foreground)
     }
-
-    //override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        //if (item.itemId == android.R.id.home) {
-           // finish()
-           // return true
-       // }
-       // return super.onOptionsItemSelected(item)
-   // }
 }

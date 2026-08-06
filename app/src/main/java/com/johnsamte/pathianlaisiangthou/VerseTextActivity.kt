@@ -303,14 +303,16 @@ class VerseTextActivity : AppCompatActivity() {
 
         navigationView.setNavigationItemSelectedListener { item ->
             when (item.itemId) {
+                R.id.home -> {
+                    val intent = Intent(this, MainActivity::class.java)
+                    intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP or Intent.FLAG_ACTIVITY_SINGLE_TOP)
+                    startActivity(intent)
+                }
                 R.id.bookmarkte -> {
                     startActivity(Intent(this, BookmarksActivity::class.java))
                 }
                 R.id.notete -> {
                     startActivity(Intent(this, NotesActivity::class.java))
-                }
-                R.id.search_view -> {
-                    startActivity(Intent(this, MainSearchActivity::class.java))
                 }
 
                 R.id.bi -> {
@@ -365,8 +367,10 @@ class VerseTextActivity : AppCompatActivity() {
                     startActivity(Intent(this, FeedbackActivity::class.java))
                 }
                 R.id.updateCheck -> {
-                    //UpdateManager.checkForUpdate(this, showUpToDateDialog = true)
-
+                    UpdateManager.checkForUpdate(this, showUpToDateDialog = true)
+                }
+                R.id.changelog -> {
+                    startActivity(Intent(this, ChangelogActivity::class.java))
                 }
             }
 
@@ -481,6 +485,7 @@ class VerseTextActivity : AppCompatActivity() {
                     selectedVerseTexts,
                     selectedVerseNumbers
                 )
+
                 hideBottomSheet()
                 verseAdapter.clearSelectedVerses()
 
@@ -509,13 +514,14 @@ class VerseTextActivity : AppCompatActivity() {
 
         // Copy
         actionBar.root.findViewById<View>(R.id.icon_copy).setOnClickListener {
+            hideBottomSheet()
+            verseAdapter.clearSelectedVerses()
             val resolvedBookName = laisiangthouDatabase.getBookNameById(bookId)
             copyVerses(combinedText,
                 selectedVerseNumbers,
                 resolvedBookName,
                 chapterNumber)
-            hideBottomSheet()
-            verseAdapter.clearSelectedVerses()
+
         }
 
         // Image Share
@@ -537,7 +543,7 @@ class VerseTextActivity : AppCompatActivity() {
             val intent = Intent(this, ImageShareActivity::class.java)
             intent.putExtra("EXTRA_FULL_VERSE_TEXT", fullText as CharSequence)
             startActivity(intent)
-
+            verseAdapter.clearSelectedVerses()
         }
 
         // Compare
@@ -549,6 +555,7 @@ class VerseTextActivity : AppCompatActivity() {
             intent.putExtra("CHAPTER", chapter)
             intent.putExtra("CHAPTER_NUMBER", chapterNumber)
             startActivity(intent)
+            verseAdapter.clearSelectedVerses()
         }
 
         // Animate in from bottom
@@ -586,7 +593,11 @@ class VerseTextActivity : AppCompatActivity() {
             val noteText =
                 result.data?.getStringExtra("NOTE_TEXT") ?: return@registerForActivityResult
 
-            addOrUpdateNote(referenceKey, noteText)
+            val noteColor =
+                result.data?.getIntExtra("NOTE_COLOR", -1) ?: return@registerForActivityResult
+
+
+            addOrUpdateNote(referenceKey, noteText, noteColor)
 
             // ✅ ADD THIS
             val verses = parseReferenceKey(referenceKey)
@@ -801,7 +812,7 @@ class VerseTextActivity : AppCompatActivity() {
         val referencePart = buildReferenceKey(verseNumbers)
 
         // Header
-        val header = "$bookName $chapter:$referencePart\n\n"
+        val header = "$bookName $chapter:$referencePart\n"
         fullText.append(header)
 
         fullText.setSpan(
@@ -812,7 +823,7 @@ class VerseTextActivity : AppCompatActivity() {
         )
 
         fullText.setSpan(
-            AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER),
+            AlignmentSpan.Standard(Layout.Alignment.ALIGN_NORMAL),
             0,
             header.length,
             Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -823,6 +834,8 @@ class VerseTextActivity : AppCompatActivity() {
             .sortedBy { it.first }
             .joinToString(" ") { (_, text) ->
                 cleanText(text)
+                    .replace("\\n", " ")
+                    .replace("\n", " ")
                     .replace(Regex("(?m)^\\s*\\d+\\s+"), "") // remove verse numbers anywhere at line start
                     .trim()
             }
@@ -897,108 +910,88 @@ class VerseTextActivity : AppCompatActivity() {
 
     private fun addOrUpdateNote(
         referenceKey: String,
-        userNote: String
+        userNote: String,
+        noteColor: Int
     ) {
         val success = laisiangthouDatabase.saveNote(
             chapterId = chapterId,
             referenceKey = referenceKey,
-            noteText = userNote
+            noteText = userNote,
+            noteColor = noteColor
         )
 
         if (success) {
-            //Toast.makeText(this, "Note saved", Toast.LENGTH_SHORT).show()
+            val updatedSet = laisiangthouDatabase.getNotedVerseNumbers(chapterId)
+            verseAdapter.setNotedVerses(updatedSet)
         } else {
             Toast.makeText(this, "Something went wrong", Toast.LENGTH_SHORT).show()
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+
+        val updatedNotes = laisiangthouDatabase.getNotedVerseNumbers(chapterId)
+        verseAdapter.setNotedVerses(updatedNotes)
+
+    }
+
     private fun addToBookmarks(verseText: String) {
+        //val dbHelper = BibleDatabaseHelper(binding.root.context)
         val dbHelper = LaisiangthouRepository(applicationContext)
         val latestBookName = dbHelper.getBookName(bookId)
         val latestChapterNumber = chapterNumber
         val bookId = laisiangthouDatabase.getBookIdByName(latestBookName)
         val currentDate = getCurrentTimestamp()
 
-        // Split the input into individual verses
-        val verses = verseText.split("\n")
+        val cleanedText = cleanText(verseText)
+        val verses = cleanedText.split("\n")
 
+        val fullText = StringBuilder()
         val duplicateVerses = mutableListOf<Int>()
         val newBookmarks = mutableListOf<Int>()
-        val addedVerseNumbers = mutableListOf<Int>() // For condensed header
 
         verses.forEach { verseLine ->
-            if (verseLine.isNotBlank()) {
-                val verseNumber = extractVerseNumber(verseLine).toIntOrNull() ?: return@forEach
-
-                // Clean, remove verse numbers, flatten, and trim
-                val verseContent = """
-                ${cleanText(verseLine)
-                    .replace(Regex("(?m)^\\s*\\d+\\s+"), "")
-                    .replace("\n", " ")
-                    .replace("\n\n", " ")
-                    .trim()}
-            """.trimIndent()
-
-                if (verseContent.isEmpty()) return@forEach
+            val cleanedVerse = cleanText(verseLine)
+            if (cleanedVerse.isNotEmpty()) {
+                val verseNumber = extractVerseNumber(cleanedVerse).toIntOrNull() ?: return@forEach
+                val verseContent = cleanedVerse.removePrefix("$verseNumber ")
 
                 if (dbHelper.isBookmarkAlreadyExists(bookId, latestChapterNumber, verseNumber)) {
                     duplicateVerses.add(verseNumber)
                 } else {
+                    fullText.append("$verseNumber $verseContent\n")
+
                     val bookmark = Bookmark(
                         bookId = bookId,
                         bookName = latestBookName,
-                        bookmarkText = verseContent, // Clean, trimmed, no verse numbers
+                        bookmarkText = verseContent,
                         chapterNumber = latestChapterNumber,
-                        verseNumber = verseNumber,   // Still used for condensed header
+                        verseNumber = verseNumber,
                         createdAt = currentDate
                     )
 
                     val result = dbHelper.addBookmark(bookmark)
                     if (result > 0) {
                         newBookmarks.add(verseNumber)
-                        addedVerseNumbers.add(verseNumber)
                     }
                 }
             }
         }
 
-        // Refresh bookmarked verses in the adapter
         if (newBookmarks.isNotEmpty()) {
             val bookmarkedVerses = dbHelper.getBookmarkedVerseNumbers(bookId, chapterNumber)
             verseAdapter.setBookmarkedVerses(bookmarkedVerses)
         }
 
-        // Show alert for duplicates
         if (duplicateVerses.isNotEmpty()) {
+            val message = "Tua abung-achang na bookmark dekpen ki-bookmark khinta!"
+
             AlertDialog.Builder(binding.root.context)
                 .setTitle("Ki-Bookmark khin")
-                .setMessage("Tua abung-achang na bookmark dekpen ki-bookmark khinta!")
+                .setMessage(message)
                 .setPositiveButton("OK", null)
                 .show()
-        }
-
-        // Generate condensed range string like 1-4,6
-        if (addedVerseNumbers.isNotEmpty()) {
-            val sortedVerses = addedVerseNumbers.sorted()
-            val condensed = mutableListOf<String>()
-            var start = sortedVerses.first()
-            var prev = start
-
-            for (i in 1 until sortedVerses.size) {
-                val current = sortedVerses[i]
-                if (current == prev + 1) prev = current
-                else {
-                    condensed.add(if (start == prev) "$start" else "$start-$prev")
-                    start = current
-                    prev = current
-                }
-            }
-            condensed.add(if (start == prev) "$start" else "$start-$prev")
-
-            val condensedString = "$latestBookName $latestChapterNumber:${condensed.joinToString(",")}"
-            Log.d("BookmarkInfo", "Bookmarked Verses: $condensedString")
-            // Optional: show condensed string in UI/Toast
-            // Toast.makeText(binding.root.context, condensedString, Toast.LENGTH_SHORT).show()
         }
     }
 
