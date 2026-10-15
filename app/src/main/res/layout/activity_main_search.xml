@@ -46,7 +46,7 @@
             <!-- Search Bar -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
-                android:layout_height="48dp"
+                android:layout_height="45dp"
                 android:layout_weight="1"
                 android:elevation="8dp"
                 app:cardBackgroundColor="@color/bw"
@@ -59,8 +59,9 @@
                     android:paddingHorizontal="16dp">
 
                     <ImageView
-                        android:layout_width="20dp"
-                        android:layout_height="20dp"
+                        android:layout_width="24dp"
+                        android:layout_height="24dp"
+                        android:contentDescription="@string/search"
                         android:src="@drawable/baseline_search_24"/>
 
                     <EditText
@@ -70,6 +71,8 @@
                         android:layout_weight="1"
                         android:layout_marginStart="12dp"
                         android:background="@null"
+                        android:textSize="16sp"
+                        android:autofillHints="search"
                         android:hint="@string/zonbaihlamna"
                         android:singleLine="true"/>
 
@@ -80,8 +83,8 @@
             <!-- Round Clear Button -->
             <com.google.android.material.card.MaterialCardView
                 android:id="@+id/clearCard"
-                android:layout_width="48dp"
-                android:layout_height="48dp"
+                android:layout_width="45dp"
+                android:layout_height="45dp"
                 android:layout_marginStart="12dp"
                 android:elevation="8dp"
                 android:visibility="gone"
@@ -92,6 +95,7 @@
                     android:id="@+id/clearButton"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
+                    android:contentDescription="@string/Close"
                     android:background="@android:color/transparent"
                     android:src="@drawable/closex"/>
 
